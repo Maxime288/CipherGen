@@ -158,6 +158,6 @@ MIT © [Maxime288](https://github.com/Maxime288)
 
 <div align="center">
 
-Fait avec ❤️ par [Maxime288](https://github.com/Maxime288) · Voir aussi [Urus-Cracker-Pro](https://github.com/Maxime288/Urus-Cracker-Pro)
+Fait avec ❤️ par [Maxime288](https://github.com/Maxime288)
 
 </div>
