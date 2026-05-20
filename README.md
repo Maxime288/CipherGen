@@ -125,7 +125,9 @@ Lorsque plusieurs jeux de caractères sont activés, le générateur s'assure qu
 
 ```
 CipherGen/
-└── ciphergen.html   # Application complète (HTML + CSS + JS)
+└── README.md
+└── index.html   # Application complète (HTML + CSS + JS)
+
 ```
 
 Fichier unique, autonome, sans dépendances.
