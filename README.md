@@ -152,11 +152,6 @@ git push origin feature/ma-fonctionnalite
 
 ---
 
-## 📜 Licence
-
-MIT © [Maxime288](https://github.com/Maxime288)
-
----
 
 <div align="center">
 
