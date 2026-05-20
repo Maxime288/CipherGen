@@ -7,10 +7,11 @@
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 ![Zero Dependencies](https://img.shields.io/badge/Dependencies-None-4ade80?style=for-the-badge)
 ![100% Local](https://img.shields.io/badge/Network-Zero%20requests-a78bfa?style=for-the-badge)
+![Render](https://img.shields.io/badge/Deployed%20on-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
 
 **Crypto-random password generator — 100% local, zéro réseau**
 
-[🚀 Demo live](#) · [📁 Code source](https://github.com/Maxime288/CipherGen/blob/main/ciphergen.html) · [🐛 Signaler un bug](https://github.com/Maxime288/CipherGen/issues)
+[🚀 Demo live](https://ciphergen.onrender.com) · [📁 Code source](https://github.com/Maxime288/CipherGen/blob/main/ciphergen.html) · [🐛 Signaler un bug](https://github.com/Maxime288/CipherGen/issues)
 
 </div>
 
@@ -67,7 +68,7 @@ cd CipherGen
 # Ouvrir ciphergen.html dans ton navigateur
 ```
 
-Ou utilise directement la [demo live](#).
+Ou utilise directement la [demo live](https://ciphergen.onrender.com).
 
 ---
 
@@ -124,7 +125,7 @@ Lorsque plusieurs jeux de caractères sont activés, le générateur s'assure qu
 
 ```
 CipherGen/
-└── index.html   # Application complète (HTML + CSS + JS)
+└── ciphergen.html   # Application complète (HTML + CSS + JS)
 ```
 
 Fichier unique, autonome, sans dépendances.
