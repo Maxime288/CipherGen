@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Générateur de mots de passe</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0d0e12;
+  --s1:#13141b;
+  --s2:#1b1c26;
+  --s3:#222330;
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.12);
+  --text:#e8e6f4;
+  --muted:#6b6880;
+  --muted2:#9896a8;
+  --accent:#a78bfa;
+  --accent2:#7c5ff5;
+  --green:#4ade80;
+  --yellow:#fbbf24;
+  --orange:#f97316;
+  --red:#f43f5e;
+  --r:10px;
+  --r2:16px;
+}
+
+body{
+  font-family:'Syne',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:2rem 1rem;
+}
+
+.wrap{width:100%;max-width:520px}
+
+/* ─── Header ─── */
+header{margin-bottom:2rem}
+.badge{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--accent);background:rgba(167,139,250,0.08);
+  border:1px solid rgba(167,139,250,0.2);
+  border-radius:20px;padding:4px 12px;margin-bottom:1rem;letter-spacing:.04em;
+}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);animation:blink 2s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.15;margin-bottom:.4rem}
+h1 span{color:var(--accent)}
+.sub{font-size:13px;color:var(--muted2)}
+
+/* ─── Card ─── */
+.card{
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:var(--r2);
+  padding:1.5rem;
+  margin-bottom:1rem;
+}
+
+/* ─── Password display ─── */
+.pw-box{
+  background:var(--s2);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:1rem 1.25rem;
+  margin-bottom:1.25rem;
+  display:flex;align-items:center;gap:12px;
+  min-height:60px;
+}
+.pw-text{
+  font-family:'JetBrains Mono',monospace;
+  font-size:17px;font-weight:400;
+  color:var(--text);
+  flex:1;word-break:break-all;line-height:1.5;
+  letter-spacing:.02em;
+}
+.pw-text .c-special{color:var(--accent)}
+.pw-text .c-num{color:var(--yellow)}
+.pw-text .c-upper{color:var(--green)}
+.pw-text .c-lower{color:var(--text)}
+
+.btn-icon{
+  background:transparent;border:1px solid var(--border2);
+  color:var(--muted2);border-radius:8px;
+  width:36px;height:36px;cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;transition:all .15s ease;
+}
+.btn-icon:hover{background:var(--s3);color:var(--text);border-color:var(--border2)}
+.btn-icon:active{transform:scale(.92)}
+.btn-icon.copied{color:var(--green);border-color:rgba(74,222,128,.3)}
+
+/* ─── Entropy bar ─── */
+.entropy-section{margin-bottom:1.25rem}
+.entropy-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.5rem}
+.label{font-size:12px;color:var(--muted2);letter-spacing:.06em;text-transform:uppercase}
+.entropy-val{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:500;color:var(--text)}
+.entropy-val span{font-size:11px;color:var(--muted);margin-left:2px}
+.bar-track{background:var(--s2);border-radius:99px;height:6px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;transition:width .4s cubic-bezier(.4,0,.2,1),background .4s ease}
+.strength-row{display:flex;justify-content:space-between;align-items:center;margin-top:.5rem}
+.strength-label{font-size:13px;font-weight:500}
+.strength-time{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)}
+
+/* ─── Charsets ─── */
+.charset-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.25rem}
+.toggle{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--s2);border:1px solid var(--border);border-radius:var(--r);
+  padding:.6rem .85rem;cursor:pointer;transition:border-color .15s,background .15s;
+  user-select:none;
+}
+.toggle:hover{border-color:var(--border2)}
+.toggle.on{border-color:rgba(167,139,250,.3);background:rgba(167,139,250,.06)}
+.toggle-info{display:flex;flex-direction:column;gap:2px}
+.toggle-name{font-size:13px;font-weight:500}
+.toggle-chars{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.03em}
+.switch{width:32px;height:18px;border-radius:99px;background:var(--s3);position:relative;flex-shrink:0;transition:background .2s}
+.switch::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--muted);transition:transform .2s,background .2s}
+.toggle.on .switch{background:var(--accent2)}
+.toggle.on .switch::after{transform:translateX(14px);background:#fff}
+
+/* ─── Slider ─── */
+.slider-row{margin-bottom:1rem}
+.slider-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.75rem}
+.len-val{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:500}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:4px;
+  border-radius:99px;background:var(--s3);outline:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+  background:var(--accent);cursor:pointer;border:3px solid var(--bg);
+  box-shadow:0 0 0 1px var(--accent2);transition:transform .15s;
+}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
+
+/* ─── Options ─── */
+.options-row{display:flex;gap:8px;margin-bottom:1.25rem}
+.opt{
+  flex:1;display:flex;align-items:center;gap:8px;
+  background:var(--s2);border:1px solid var(--border);border-radius:var(--r);
+  padding:.6rem .85rem;cursor:pointer;font-size:13px;
+  transition:border-color .15s,background .15s;user-select:none;
+}
+.opt:hover{border-color:var(--border2)}
+.opt.on{border-color:rgba(167,139,250,.3);background:rgba(167,139,250,.06)}
+.opt .chk{
+  width:16px;height:16px;border-radius:4px;border:1px solid var(--border2);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:10px;transition:all .15s;
+}
+.opt.on .chk{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* ─── Generate button ─── */
+.btn-gen{
+  width:100%;padding:14px;border:none;border-radius:var(--r);cursor:pointer;
+  font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:.03em;
+  background:linear-gradient(135deg,var(--accent2),var(--accent));
+  color:#fff;transition:opacity .15s,transform .1s;
+  box-shadow:0 4px 24px rgba(124,95,245,.35);
+}
+.btn-gen:hover{opacity:.92}
+.btn-gen:active{transform:scale(.98)}
+
+/* ─── Stats ─── */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:1rem}
+.stat{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:.75rem;text-align:center}
+.stat-val{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:500;color:var(--text)}
+.stat-label{font-size:11px;color:var(--muted);margin-top:2px;letter-spacing:.04em;text-transform:uppercase}
+
+/* ─── Footer ─── */
+footer{text-align:center;font-size:11px;color:var(--muted);margin-top:1.5rem;letter-spacing:.04em}
+footer span{color:var(--green)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="badge">🔒 100% local — zéro réseau</div>
+    <h1>Générateur de<br><span>mots de passe</span></h1>
+    <p class="sub">Crypto-aléatoire côté client · aucune donnée envoyée</p>
+  </header>
+
+  <div class="card">
+
+    <!-- Mot de passe -->
+    <div class="pw-box">
+      <div class="pw-text" id="pwDisplay">—</div>
+      <button class="btn-icon" id="btnCopy" title="Copier" onclick="copyPw()">⎘</button>
+      <button class="btn-icon" title="Régénérer" onclick="generate()">↻</button>
+    </div>
+
+    <!-- Entropie & force -->
+    <div class="entropy-section">
+      <div class="entropy-header">
+        <span class="label">Entropie</span>
+        <span class="entropy-val"><span id="entropyVal">0</span><span>bits</span></span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
+      <div class="strength-row">
+        <span class="strength-label" id="strengthLabel">—</span>
+        <span class="strength-time" id="crackTime">—</span>
+      </div>
+    </div>
+
+    <!-- Jeux de caractères -->
+    <div class="label" style="margin-bottom:.6rem">Caractères</div>
+    <div class="charset-grid">
+      <div class="toggle on" id="tgl-lower" onclick="toggleCharset('lower',this)">
+        <div class="toggle-info">
+          <span class="toggle-name">Minuscules</span>
+          <span class="toggle-chars">a–z &nbsp;(26)</span>
+        </div>
+        <div class="switch"></div>
+      </div>
+      <div class="toggle on" id="tgl-upper" onclick="toggleCharset('upper',this)">
+        <div class="toggle-info">
+          <span class="toggle-name">Majuscules</span>
+          <span class="toggle-chars">A–Z &nbsp;(26)</span>
+        </div>
+        <div class="switch"></div>
+      </div>
+      <div class="toggle on" id="tgl-num" onclick="toggleCharset('num',this)">
+        <div class="toggle-info">
+          <span class="toggle-name">Chiffres</span>
+          <span class="toggle-chars">0–9 &nbsp;(10)</span>
+        </div>
+        <div class="switch"></div>
+      </div>
+      <div class="toggle on" id="tgl-sym" onclick="toggleCharset('sym',this)">
+        <div class="toggle-info">
+          <span class="toggle-name">Spéciaux</span>
+          <span class="toggle-chars">!@#$… (32)</span>
+        </div>
+        <div class="switch"></div>
+      </div>
+    </div>
+
+    <!-- Longueur -->
+    <div class="slider-row">
+      <div class="slider-header">
+        <span class="label">Longueur</span>
+        <span class="len-val" id="lenVal">20</span>
+      </div>
+      <input type="range" id="lenSlider" min="4" max="128" value="20" step="1"
+        oninput="document.getElementById('lenVal').textContent=this.value;generate()"/>
+    </div>
+
+    <!-- Options -->
+    <div class="options-row">
+      <div class="opt on" id="opt-ambig" onclick="toggleOpt('ambig',this)">
+        <div class="chk">✓</div>
+        <span>Exclure ambigus<br><small style="color:var(--muted);font-size:10px">0O Il1</small></span>
+      </div>
+      <div class="opt" id="opt-pronounce" onclick="toggleOpt('pronounce',this)">
+        <div class="chk"></div>
+        <span>Prononçable<br><small style="color:var(--muted);font-size:10px">consonnes+voyelles</small></span>
+      </div>
+    </div>
+
+    <!-- Bouton -->
+    <button class="btn-gen" onclick="generate()">⚡ Générer un mot de passe</button>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-val" id="statPool">—</div>
+        <div class="stat-label">Pool</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="statLen">—</div>
+        <div class="stat-label">Longueur</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="statCombos">—</div>
+        <div class="stat-label">Combinaisons</div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>Généré avec <span>crypto.getRandomValues</span> · aucune requête réseau</footer>
+</div>
+
+<script>
+const CHARSETS = {
+  lower: 'abcdefghijklmnopqrstuvwxyz',
+  upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  num:   '0123456789',
+  sym:   '!@#$%^&*()-_=+[]{}|;:,.<>?/~'
+};
+const AMBIGUOUS = /[0O1Il]/g;
+const VOWELS = 'aeiou';
+const CONSONANTS = 'bcdfghjklmnpqrstvwxyz';
+
+const state = {
+  lower:true, upper:true, num:true, sym:true,
+  ambig:true, pronounce:false,
+  len:20
+};
+
+function toggleCharset(key, el) {
+  const active = Object.values(state).filter((v,i)=>['lower','upper','num','sym'][i]&&v);
+  const charsets = ['lower','upper','num','sym'];
+  const count = charsets.filter(k=>state[k]).length;
+  if (state[key] && count === 1) return; // garde au moins 1
+  state[key] = !state[key];
+  el.classList.toggle('on', state[key]);
+  generate();
+}
+
+function toggleOpt(key, el) {
+  state[key] = !state[key];
+  el.classList.toggle('on', state[key]);
+  if (key === 'pronounce' && state.pronounce) {
+    // prononçable : désactiver sym, num, majuscules
+    state.sym = false; state.num = false; state.upper = false;
+    ['sym','num','upper'].forEach(k=>{
+      document.getElementById('tgl-'+k).classList.remove('on');
+    });
+  }
+  generate();
+}
+
+function buildPool() {
+  let pool = '';
+  if (state.pronounce) return VOWELS + CONSONANTS;
+  ['lower','upper','num','sym'].forEach(k=>{ if(state[k]) pool += CHARSETS[k]; });
+  if (state.ambig) pool = pool.replace(AMBIGUOUS,'');
+  return [...new Set(pool.split(''))].join('');
+}
+
+function randomInt(max) {
+  const arr = new Uint32Array(1);
+  const limit = 0x100000000 - (0x100000000 % max);
+  let val;
+  do { crypto.getRandomValues(arr); val = arr[0]; } while (val >= limit);
+  return val % max;
+}
+
+function generatePronounceable(len, pool) {
+  let pw = '';
+  let useVowel = Math.random() > .5;
+  for (let i = 0; i < len; i++) {
+    const chars = useVowel ? VOWELS : CONSONANTS;
+    pw += chars[randomInt(chars.length)];
+    useVowel = !useVowel;
+  }
+  if (state.ambig) pw = pw.replace(AMBIGUOUS, c => {
+    const alt = 'bcdfghjklmnpqrstvwxyz'.replace(c,'');
+    return alt[randomInt(alt.length)];
+  });
+  return pw;
+}
+
+function generate() {
+  state.len = parseInt(document.getElementById('lenSlider').value);
+  const pool = buildPool();
+  if (!pool.length) return;
+  let pw = '';
+  if (state.pronounce) {
+    pw = generatePronounceable(state.len, pool);
+  } else {
+    // garantir au moins 1 char de chaque charset actif
+    const active = ['lower','upper','num','sym'].filter(k=>state[k]);
+    const guaranteed = active.map(k=>{
+      let p = CHARSETS[k];
+      if (state.ambig) p = p.replace(AMBIGUOUS,'');
+      return p[randomInt(p.length)];
+    });
+    const remaining = state.len - guaranteed.length;
+    const rest = Array.from({length:remaining}, ()=>pool[randomInt(pool.length)]);
+    const all = [...guaranteed,...rest];
+    // Fisher-Yates shuffle
+    for (let i = all.length-1; i>0; i--) {
+      const j = randomInt(i+1);
+      [all[i],all[j]]=[all[j],all[i]];
+    }
+    pw = all.join('');
+  }
+
+  renderPassword(pw, pool);
+  updateMetrics(pw, pool);
+}
+
+function renderPassword(pw, pool) {
+  const el = document.getElementById('pwDisplay');
+  const lc = pw.split('').map(c=>{
+    if (/[A-Z]/.test(c)) return `<span class="c-upper">${c}</span>`;
+    if (/[0-9]/.test(c)) return `<span class="c-num">${c}</span>`;
+    if (/[^a-z0-9]/i.test(c) && !/[a-zA-Z]/.test(c)) return `<span class="c-special">${c}</span>`;
+    return `<span class="c-lower">${c}</span>`;
+  }).join('');
+  el.innerHTML = lc;
+  el._plain = pw;
+}
+
+function updateMetrics(pw, pool) {
+  const poolSize = pool.length;
+  const len = pw.length;
+  const entropy = Math.log2(Math.pow(poolSize, len));
+  const rounded = Math.round(entropy);
+
+  document.getElementById('entropyVal').textContent = rounded;
+  document.getElementById('statPool').textContent = poolSize;
+  document.getElementById('statLen').textContent = len;
+
+  // Combinaisons (log10)
+  const log10combos = len * Math.log10(poolSize);
+  let combosStr;
+  if (log10combos > 30) combosStr = '10^' + Math.round(log10combos);
+  else combosStr = Math.round(Math.pow(10, log10combos)).toLocaleString('fr');
+  document.getElementById('statCombos').textContent = combosStr.length > 8
+    ? '10^' + Math.round(log10combos) : combosStr;
+
+  // Barre
+  const pct = Math.min(100, (entropy / 200) * 100);
+  const fill = document.getElementById('barFill');
+  fill.style.width = pct + '%';
+
+  // Force & couleur
+  let strength, color, time;
+  if (entropy < 28)       { strength='Très faible'; color='var(--red)';    time='< 1 seconde'; }
+  else if (entropy < 36)  { strength='Faible';      color='var(--orange)'; time='quelques minutes'; }
+  else if (entropy < 60)  { strength='Moyen';       color='var(--yellow)'; time='quelques heures'; }
+  else if (entropy < 100) { strength='Fort';        color='var(--green)';  time='des siècles'; }
+  else                    { strength='Extrême';     color='var(--accent)'; time='∞ temps cosmologique'; }
+
+  fill.style.background = color;
+  const sl = document.getElementById('strengthLabel');
+  sl.textContent = strength; sl.style.color = color;
+  document.getElementById('crackTime').textContent = '⏱ ' + time;
+}
+
+function copyPw() {
+  const pw = document.getElementById('pwDisplay')._plain;
+  if (!pw) return;
+  navigator.clipboard.writeText(pw).then(()=>{
+    const btn = document.getElementById('btnCopy');
+    btn.classList.add('copied');
+    btn.textContent = '✓';
+    setTimeout(()=>{ btn.classList.remove('copied'); btn.textContent='⎘'; }, 1800);
+  });
+}
+
+generate();
+</script>
+</body>
+</html>
